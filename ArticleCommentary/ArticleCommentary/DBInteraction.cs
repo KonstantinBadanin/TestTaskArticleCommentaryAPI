@@ -47,6 +47,32 @@ namespace ArticleCommentary
             }
         }
 
+        public void AddNewUserAndHisComment(int userId, string username, Comment arg)
+        {
+            if (arg == null) throw new ArgumentNullException(paramName: nameof(arg));
+            using IDbConnection db = new SqlConnection(connectionString);
+            db.Open();
+            using IDbTransaction tran = db.BeginTransaction();
+            try
+            {
+                db.Execute("AddNewUserAndHisComment", new
+                {
+                    username,
+                    arg.Id,
+                    arg.ComText,
+                    arg.Article,
+                    arg.UserId,
+                    arg.Parent
+                }, tran, commandType: CommandType.StoredProcedure);
+                tran.Commit();
+            }
+            catch (Exception)
+            {
+                tran.Rollback();
+                throw;
+            }
+        }
+
         public void AddNewComment(Comment arg)
         {
             if (arg == null) throw new ArgumentNullException(paramName: nameof(arg));

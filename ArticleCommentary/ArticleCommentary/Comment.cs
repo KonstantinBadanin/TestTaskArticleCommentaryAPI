@@ -6,9 +6,10 @@ using System.Globalization;
 
 namespace ArticleCommentary
 {
-    public class Comment 
-        //Класс для маппинга.
+    public class Comment
+    //Class for comments mapping.
     {
+
         public int Id { get; set; }
         public string ComText { get; set; }
         public int UserId { get; set; }
@@ -34,11 +35,14 @@ namespace ArticleCommentary
                     null : (int?)Int32.Parse(arg.Parent, CultureInfo.CurrentCulture.NumberFormat);
             }
         }
+        
         public Comment() { }
+        
         public Comment(int id, string text, int user, int article, int? parent)
         {
             Id = id; ComText = text; UserId = user; Article = article; Parent = parent;
         }
+
         public Comment(int id, string text, int user, int article, string parent)
         {
             if (text == null)
@@ -56,10 +60,16 @@ namespace ArticleCommentary
             Parent = (parent.Equals("null",StringComparison.Ordinal))?
                 null:(int?)Int32.Parse(parent, CultureInfo.CurrentCulture.NumberFormat);
         }
+
         public Comment(Comment arg)
         {
             if (arg == null) throw (new NullReferenceException());
             Id = arg.Id; ComText = arg.ComText; UserId = arg.UserId; Article = arg.Article; Parent = arg.Parent;
+        }
+
+        public override string ToString()
+        {
+            return "Comment " + Id + " " + ComText;
         }
     }
 }

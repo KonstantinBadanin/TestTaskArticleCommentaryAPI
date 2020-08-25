@@ -14,7 +14,8 @@ namespace ArticleCommentary.Controllers
     {
 
         [HttpGet]
-        public string[] Get()    //нужен для передачи клиенту начальных данных
+        public string[] Get()
+            //Get method. Done for sending initial data to client.
         {
             List<string> initialData = new List<string>();
             var data = ArticleCommentsTree.GetInstance();
@@ -22,23 +23,29 @@ namespace ArticleCommentary.Controllers
             {
                 foreach (ArticleNode article in data.Tree)
                 {
-                    initialData.Add("Article" + " " + article.Id + " " + article.Title + " " + article.ArticleText + " ");
+                    initialData.Add(article.ToString());
                     if (article.LeftComment != null)
                     {
                         int IdToFind = article.LeftComment.UserId;
-                        initialData.Add("Comment" + " " + article.LeftComment.Id + " " + data.Users.Find(x => x.Id == IdToFind).Name+" " + article.LeftComment.ComText + " ");
-                        foreach (var item1 in article.LeftComment.GetAllDerivedComments())
+                        initialData.Add(data.Users.Find(x => x.Id == IdToFind).Name + " " + 
+                            article.LeftComment.ToString());
+                        foreach (CommentNode comment in article.LeftComment.GetAllDerivedComments())
                         {
-                            initialData.Add(item1);
+                            IdToFind = comment.UserId;
+                            initialData.Add(data.Users.Find(x => x.Id == IdToFind).Name + " " + 
+                                comment.ToString());
                         }
                     }
                     if (article.RightComment != null)
                     {
                         int IdToFind = article.RightComment.UserId;
-                        initialData.Add("Comment" + " " + article.RightComment.Id + " " + data.Users.Find(x => x.Id == IdToFind).Name + " " + article.RightComment.ComText + " ");
-                        foreach (var item1 in article.RightComment.GetAllDerivedComments())
+                        initialData.Add(data.Users.Find(x => x.Id == IdToFind).Name + " " + 
+                            article.RightComment.ToString());
+                        foreach (CommentNode comment in article.RightComment.GetAllDerivedComments())
                         {
-                            initialData.Add(item1);
+                            IdToFind = comment.UserId;
+                            initialData.Add(data.Users.Find(x => x.Id == IdToFind).Name + " " + 
+                                comment.ToString());
                         }
                     }
                 }
@@ -53,7 +60,8 @@ namespace ArticleCommentary.Controllers
         }
 
         [HttpPost]
-        public void Post(Request arg)   //принимает формы от клиента
+        public void Post(Request arg)
+        //Recieves forms from client.
         {
             if (arg == null) throw new ArgumentNullException(paramName: nameof(arg));
             var comment = new Comment(arg);
@@ -69,24 +77,25 @@ namespace ArticleCommentary.Controllers
                 {
                     throw;
                 }
-            }
-            lock (data.Locker)
-            {
                 if (ArticleCommentsTree.AddByParentId(ref Node))
                 {
                     string connectionString = @"Persist Security Info=False; Data Source=(localDB)\mssqllocaldb; AttachDBFilename='C:\Users\kaste\source\repos\ArticleCommentary\ArticleCommentary\App_Data\CommentaryBase.mdf';Integrated Security=true";
                     DBInteraction Interactor = new DBInteraction(connectionString);
                     try
                     {
-                        Interactor.AddNewUser(comment.UserId, arg.UserName);
-                        Interactor.AddNewComment(comment);
+                        Interactor.AddNewUserAndHisComment(comment.UserId, arg.UserName, comment);
                     }
                     catch (Exception)
                     {
+                        data.Users.RemoveAll(x => x.Id == comment.UserId);
                         if (ArticleCommentsTree.DeleteCommentById(comment.Id) == true)
+                        {
                             return;
+                        }
                         else
+                        {
                             throw (new Exception());
+                        }
                     };
                 }
                 else

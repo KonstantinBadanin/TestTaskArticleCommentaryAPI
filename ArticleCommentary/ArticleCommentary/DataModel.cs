@@ -97,27 +97,23 @@ namespace ArticleCommentary
             if (arg == null) throw (new NullReferenceException());
             DerivedRightCommentNode = DerivedLeftCommentNode = null;
         }
-        public List<string> GetAllDerivedComments()
-        //Возвращает список текстов наследованных комментариев.
+        public List<CommentNode> GetAllDerivedComments()
+            //Возвращает список текстов наследованных комментариев.
         {
-            List<string> DerivedComments = new List<string>();
+            List<CommentNode> DerivedComments = new List<CommentNode>();
             if (this == null) return DerivedComments;
             if (DerivedLeftCommentNode != null)
             {
-                int IdToFind = DerivedLeftCommentNode.UserId;
-                DerivedComments.Add("Comment" + " " + DerivedLeftCommentNode.Id + " " +
-                    ArticleCommentsTree.GetInstance().Users.Find(x => x.Id == IdToFind).Name + " " + DerivedLeftCommentNode.ComText + " ");
-                foreach (string comment in DerivedLeftCommentNode.GetAllDerivedComments())
+                DerivedComments.Add(DerivedLeftCommentNode);
+                foreach (CommentNode comment in DerivedLeftCommentNode.GetAllDerivedComments())
                 {
                     DerivedComments.Add(comment);
                 }
             }
             if (DerivedRightCommentNode != null)
             {
-                int IdToFind = DerivedRightCommentNode.UserId;
-                DerivedComments.Add("Comment" + " " + DerivedRightCommentNode.Id + " " +
-                    ArticleCommentsTree.GetInstance().Users.Find(x => x.Id == IdToFind).Name + " " + DerivedRightCommentNode.ComText + " ");
-                foreach (string comment in DerivedRightCommentNode.GetAllDerivedComments())
+                DerivedComments.Add(DerivedRightCommentNode);
+                foreach (CommentNode comment in DerivedRightCommentNode.GetAllDerivedComments())
                 {
                     DerivedComments.Add(comment);
                 }
