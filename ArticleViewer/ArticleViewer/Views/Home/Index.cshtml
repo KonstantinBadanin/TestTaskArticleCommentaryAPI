@@ -1,0 +1,71 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+@*copyright Konstantin Badanin*@
+<h1>ArticleCommentary</h1>
+<div>
+    <label for="name" id="Lname">Ваше имя</label><input type="text" id="name" />
+</div>
+<div>
+    <label for="commentBox" id="Lcomment">Ваш комментарий</label><input type="text" id="commentBox" />
+</div>
+<div>
+    <label for="Id" id="Num">Id</label><input type="text" id="IdCom" /><label for="artId" id="artNum">Id статьи</label><input type="text" id="artId" /><label for="ParComOrNull" id="Box">Высший коммент</label><input type="text" id="ParComOrNull" /><label for="UserId" id="Box5">Id Пользователя</label><input type="text" id="UserId" />
+</div>
+<div>
+    <button id='submit'>Отправить</button>
+</div>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script>
+    var button = document.getElementById('submit');
+    button.addEventListener('click', handler, false);
+    var k = 0;
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'http://localhost:5000/Commentary', true);
+    xhr.responseType = 'json';
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState != 4) return;
+        if (xhr.status != 200) {
+            alert(xhr.status + ': ' + xhr.statusText);
+        } else {
+            for (var item of xhr.response) {
+                k++;
+                var s = document.createElement('div');
+                s.setAttribute('id', k);
+                s.innerHTML = '<h3>' + item + '</h3>';
+                document.body.append(s);
+            }
+        }
+    }
+    xhr.send();
+    function handler() {
+        var UsrName = document.getElementById('name').value;
+        var Comment = document.getElementById('commentBox').value;
+        var CId = document.getElementById('IdCom').value;
+        var AId = document.getElementById('artId').value;
+        var pid = document.getElementById('ParComOrNull').value;
+        var userId = document.getElementById('UserId').value;
+        var xhr1 = new XMLHttpRequest();
+        xhr1.open('POST', 'http://localhost:5000/Commentary', true);
+        xhr1.responseType = 'text';
+        xhr1.setRequestHeader("Content-type", "application/json");
+        xhr1.send(JSON.stringify({ UserName: UsrName, Id: CId, ComText: Comment, UserId: userId, Article: AId, Parent: pid }));
+        xhr1.onreadystatechange = function () {
+            if (xhr1.readyState != 4) return;
+            if (xhr1.status != 200) {
+                alert(xhr1.status + ': ' + xhr1.statusText);
+            } else {
+                var newItem = document.createElement('div');
+                k++;
+                newItem.setAttribute('id', k);
+                newItem.innerHTML = '<h3>' + 'Comment ' + CId + ' ' + UsrName + ' ' + Comment + '<h3>';
+                document.body.append(newItem);
+            }
+        }
+    }
+</script>
+@section scripts
+{
+
+
+}
