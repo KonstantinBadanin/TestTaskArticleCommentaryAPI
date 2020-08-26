@@ -21,7 +21,7 @@ namespace ArticleCommentary.Controllers
             var data = ArticleCommentsTree.GetInstance();
             lock (data.Locker)
             {
-                foreach (ArticleNode article in data.Tree)
+                foreach (ArticleNode article in data.ArticleList)
                 {
                     initialData.Add(article.ToString());
                     if (article.LeftComment != null)
@@ -61,7 +61,7 @@ namespace ArticleCommentary.Controllers
 
         [HttpPost]
         public void Post(Request arg)
-        //Recieves forms from client.
+            //Recieves forms from client, writes data to datamodel and database.
         {
             if (arg == null) throw new ArgumentNullException(paramName: nameof(arg));
             var comment = new Comment(arg);
@@ -77,16 +77,22 @@ namespace ArticleCommentary.Controllers
                 {
                     throw;
                 }
-                if (ArticleCommentsTree.AddByParentId(ref Node))
+                if (ArticleCommentsTree.AddByParentId(ref Node) == true)
                 {
-                    string connectionString = @"Persist Security Info=False; Data Source=(localDB)\mssqllocaldb; AttachDBFilename='C:\Users\kaste\source\repos\ArticleCommentary\ArticleCommentary\App_Data\CommentaryBase.mdf';Integrated Security=true";
+                        //Success addition handling.
+                    string connectionString =
+                        @"Persist Security Info=False;" +
+                        @" Data Source=(localDB)\mssqllocaldb;" +
+                        @" AttachDBFilename='C:\Users\kaste\source\repos\ArticleCommentary\ArticleCommentary\App_Data\CommentaryBase.mdf';" +
+                        @" Integrated Security =true";
                     DBInteraction Interactor = new DBInteraction(connectionString);
                     try
                     {
-                        Interactor.AddNewUserAndHisComment(comment.UserId, arg.UserName, comment);
+                        Interactor.AddNewUserAndHisComment(arg.UserName, comment);
                     }
                     catch (Exception)
                     {
+                            //Database failed addition handling.
                         data.Users.RemoveAll(x => x.Id == comment.UserId);
                         if (ArticleCommentsTree.DeleteCommentById(comment.Id) == true)
                         {
@@ -100,8 +106,8 @@ namespace ArticleCommentary.Controllers
                 }
                 else
                 {
+                        //Failed addition handling.
                     throw (new Exception());
-                    //обработка при неудаче добавления;
                 }
             }
         }

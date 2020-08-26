@@ -6,11 +6,12 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using Dapper;
-//copyright Konstantin Badanin
+    //Copyright Konstantin Badanin.
+
 namespace ArticleCommentary
 {
     public class Request
-    //Класс для передачи данных в запросе post.
+        //Class for transporting data by post request.
     {
         public string UserName { get; set; }
         public string Id { get; set; }
@@ -21,7 +22,7 @@ namespace ArticleCommentary
         public Request() { }
     }
     public class DBInteraction 
-        //Класс, в котором реализовано взаимодействие с БД.
+        //Database interaction class.
     {
         private readonly string connectionString;
         public DBInteraction(string ConnectionString)
@@ -29,25 +30,7 @@ namespace ArticleCommentary
             connectionString = ConnectionString;
         }
 
-        public void AddNewUser(int userId, string username)
-        {
-            using IDbConnection db = new SqlConnection(connectionString);
-            db.Open();
-            using IDbTransaction tran = db.BeginTransaction();
-            try
-            {
-                db.Execute("AddNewUser", new { userId, username }, tran,
-                    commandType: CommandType.StoredProcedure);
-                tran.Commit();
-            }
-            catch (Exception)
-            {
-                tran.Rollback();
-                throw;
-            }
-        }
-
-        public void AddNewUserAndHisComment(int userId, string username, Comment arg)
+        public void AddNewUserAndHisComment(string username, Comment arg)
         {
             if (arg == null) throw new ArgumentNullException(paramName: nameof(arg));
             using IDbConnection db = new SqlConnection(connectionString);
@@ -64,25 +47,6 @@ namespace ArticleCommentary
                     arg.UserId,
                     arg.Parent
                 }, tran, commandType: CommandType.StoredProcedure);
-                tran.Commit();
-            }
-            catch (Exception)
-            {
-                tran.Rollback();
-                throw;
-            }
-        }
-
-        public void AddNewComment(Comment arg)
-        {
-            if (arg == null) throw new ArgumentNullException(paramName: nameof(arg));
-            using IDbConnection db = new SqlConnection(connectionString);
-            db.Open();
-            using IDbTransaction tran = db.BeginTransaction();
-            try
-            {
-                db.Execute("AddNewComment", new { arg.Id, arg.ComText, arg.Article, arg.UserId, arg.Parent },
-                    tran, commandType: CommandType.StoredProcedure);
                 tran.Commit();
             }
             catch (Exception)
@@ -111,6 +75,7 @@ namespace ArticleCommentary
             }
             return articles;
         }
+
         public List<Comment> FindCommentsByParentId(int parId)
         {
             List<Comment> comments = null;

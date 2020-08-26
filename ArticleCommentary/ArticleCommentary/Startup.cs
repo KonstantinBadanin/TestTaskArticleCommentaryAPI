@@ -17,29 +17,33 @@ namespace ArticleCommentary
     public class Startup
     {
         private readonly string connectionString = 
-            @"Persist Security Info=False; Data Source=(localDB)\mssqllocaldb;
-            AttachDBFilename=
-            'C:\Users\kaste\source\repos\ArticleCommentary\ArticleCommentary\App_Data\CommentaryBase.mdf';
-            Integrated Security=true";
-        public List<User> InitUsersOnStartup()//создает список юзеров
+            @"Persist Security Info=False;" + 
+            @" Data Source=(localDB)\mssqllocaldb;" + 
+            @" AttachDBFilename='C:\Users\kaste\source\repos\ArticleCommentary\ArticleCommentary\App_Data\CommentaryBase.mdf';" +
+            @" Integrated Security=true";
+
+        public List<ArticleNode> InitArticlesOnStartup()
+            //Reads database on startup and creates datamodel.
+            //This needs to be reworked.
         {
             DBInteraction Interactor = new DBInteraction(connectionString);
-            List<User> UserList = Interactor.GetUsers();
-            return UserList;
-        }
-        public List<ArticleNode> InitOnStartup() //Считывает базу при старте программы и создает модель данных
-        {
-            DBInteraction Interactor = new DBInteraction(connectionString);
-            List<ArticleNode> DataTree = new List<ArticleNode>();
-            foreach(var item in Interactor.GetArticles())  //заполнение списка статьями
+            List<ArticleNode> ArticleList = new List<ArticleNode>();
+            foreach(ArticleNode item in Interactor.GetArticles())
+                //Filling list with articles.
             {
-                DataTree.Add(new ArticleNode(item));
+                ArticleList.Add(new ArticleNode(item));
             }
-            if (DataTree.Count == 0) return DataTree;
-            foreach (var item in DataTree) //рекурсивно заполняем деревья комментов, больше 2 на одном уровне нельзя
+            if (ArticleList.Count == 0)
+            {
+                return ArticleList;
+            }
+            foreach (ArticleNode item in ArticleList)
+                //Recursively filling comments trees. Max two per level.
             {
                 List<Comment> commentsWNoParent = Interactor.FindCommentsByArticleIdWNoParent(item.Id);
                 int k = commentsWNoParent.Count;
+                if (k == 0)
+                { }
                 if (k == 1)
                 {
                     var tmp = new CommentNode(commentsWNoParent[0]);
@@ -55,16 +59,22 @@ namespace ArticleCommentary
                     item.LeftComment.LoadFromDBToModel(connectionString);
                     item.RightComment.LoadFromDBToModel(connectionString);
                 }
+                if (k > 2)
+                {
+                    throw (new InvalidOperationException());
+                }
             }
-            return DataTree;
+            return ArticleList;
         }
+
         public Startup(IConfiguration configuration)
+            //DataModel initialization and getting singleton instance.
         {
             Configuration = configuration;
-            List<ArticleNode> articles = InitOnStartup();
-            List<User> users = InitUsersOnStartup();
+            List<ArticleNode> articles = InitArticlesOnStartup();
+            DBInteraction Interactor = new DBInteraction(connectionString);
+            List<User> users = Interactor.GetUsers();
             ArticleCommentsTree.GetInstance(ref articles,ref users);
-            //Инициализация модели данных
         }
 
         public IConfiguration Configuration { get; }
@@ -72,8 +82,10 @@ namespace ArticleCommentary
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient(provider => new DBInteraction(connectionString));   //внедрение зависимости
-            services.AddCors(options =>                 //включение cors
+                //Adding database service.
+            services.AddTransient(provider => new DBInteraction(connectionString));
+                //Enabling CORS.
+            services.AddCors(options =>
             {
                 options.AddPolicy("NoRestrictions",
                     builder => builder.WithOrigins("*").AllowAnyHeader().AllowAnyMethod());

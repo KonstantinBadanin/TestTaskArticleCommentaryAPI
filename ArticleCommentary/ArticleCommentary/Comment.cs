@@ -7,14 +7,14 @@ using System.Globalization;
 namespace ArticleCommentary
 {
     public class Comment
-    //Class for comments mapping.
+        //Class for comments mapping.
     {
-
         public int Id { get; set; }
         public string ComText { get; set; }
         public int UserId { get; set; }
         public int Article { get; set; }
         public int? Parent { get; set; }
+
         public Comment(Request arg)
         {
             if (arg == null)

@@ -7,14 +7,16 @@ using System.Threading.Tasks;
 namespace ArticleCommentary
 {
     public class ArticleCommentsTree
-        //Класс объекта модели данных: один экземпляр на рантайм.
+        //Datamodel object class. Uses singleton.
     {
         private static ArticleCommentsTree instance;
+
         private ArticleCommentsTree(ref List<ArticleNode> tree, ref List<User> users)
         {
             Users = users;
-            Tree = tree;
+            ArticleList = tree;
         }
+
         public static ArticleCommentsTree GetInstance()
         {
             if (instance == null)
@@ -26,6 +28,7 @@ namespace ArticleCommentary
                 return instance;
             }
         }
+
         public static ArticleCommentsTree GetInstance(ref List<ArticleNode> tree, ref List<User> users)
         {
             if (instance == null)
@@ -37,6 +40,7 @@ namespace ArticleCommentary
             }
             return instance;
         }
+
         private static readonly object syncRoot = new Object();
         private static readonly object locker = new Object();
         public object Locker
@@ -46,14 +50,15 @@ namespace ArticleCommentary
                 return locker;
             }
         }
+
         public List<User> Users{ get; private set; }
-        public List<ArticleNode> Tree { get; private set; }
+        public List<ArticleNode> ArticleList { get; private set; }
 
         public static bool AddByParentId(ref CommentNode comment)
-            //Возврат: true добавлен коммент в дерево, false не добавлен.
+            //Return value: true-comment added to tree, false-not added.
         {
             if (comment == null) throw new ArgumentNullException(paramName: nameof(comment));
-            foreach (ArticleNode article in instance.Tree)
+            foreach (ArticleNode article in instance.ArticleList)
             {
                 if (article.LeftComment == null)
                 {
@@ -82,6 +87,7 @@ namespace ArticleCommentary
             }
             return false;
         }
+
         public static bool DeleteCommentById(int comId)
         {
             throw new NotImplementedException();

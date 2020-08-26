@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 
 namespace ArticleCommentary
 {
-    public class User //класс для маппинга
+    public class User
+        //User mapping class.
     {
         public int Id { get; set; }
         public string Name { get; set; }
