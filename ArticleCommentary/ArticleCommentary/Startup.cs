@@ -16,7 +16,7 @@ namespace ArticleCommentary
 {
     public class Startup
     {
-        private readonly string connectionString = 
+        private readonly string _connectionString = 
             @"Persist Security Info=False;" + 
             @" Data Source=(localDB)\mssqllocaldb;" + 
             @" AttachDBFilename='C:\Users\kaste\source\repos\ArticleCommentary\ArticleCommentary\App_Data\CommentaryBase.mdf';" +
@@ -26,7 +26,7 @@ namespace ArticleCommentary
             //Reads database on startup and creates datamodel.
             //This needs to be reworked.
         {
-            DBInteraction Interactor = new DBInteraction(connectionString);
+            DBInteraction Interactor = new DBInteraction(_connectionString);
             List<ArticleNode> ArticleList = new List<ArticleNode>();
             foreach(ArticleNode item in Interactor.GetArticles())
                 //Filling list with articles.
@@ -48,7 +48,7 @@ namespace ArticleCommentary
                 {
                     var tmp = new CommentNode(commentsWNoParent[0]);
                     item.SetLeftComment(ref tmp);
-                    item.LeftComment.LoadFromDBToModel(connectionString);
+                    item.LeftComment.LoadFromDBToModel(_connectionString);
                 }
                 if (k == 2)
                 {
@@ -56,8 +56,8 @@ namespace ArticleCommentary
                     var tmp2 = new CommentNode(commentsWNoParent[1]);
                     item.SetLeftComment(ref tmp1);
                     item.SetRightComment(ref tmp2);
-                    item.LeftComment.LoadFromDBToModel(connectionString);
-                    item.RightComment.LoadFromDBToModel(connectionString);
+                    item.LeftComment.LoadFromDBToModel(_connectionString);
+                    item.RightComment.LoadFromDBToModel(_connectionString);
                 }
                 if (k > 2)
                 {
@@ -72,7 +72,7 @@ namespace ArticleCommentary
         {
             Configuration = configuration;
             List<ArticleNode> articles = InitArticlesOnStartup();
-            DBInteraction Interactor = new DBInteraction(connectionString);
+            DBInteraction Interactor = new DBInteraction(_connectionString);
             List<User> users = Interactor.GetUsers();
             ArticleCommentsTree.GetInstance(ref articles,ref users);
         }
@@ -83,7 +83,7 @@ namespace ArticleCommentary
         public void ConfigureServices(IServiceCollection services)
         {
                 //Adding database service.
-            services.AddTransient(provider => new DBInteraction(connectionString));
+            services.AddTransient(provider => new DBInteraction(_connectionString));
                 //Enabling CORS.
             services.AddCors(options =>
             {

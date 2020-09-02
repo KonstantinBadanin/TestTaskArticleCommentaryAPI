@@ -7252,11 +7252,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\kaste\\source\\repos\\ArticleCommentary\\ArticleCommentary\\ArticleCommentary.csproj",
+      "projectUniqueName": "C:\\Users\\kaste\\repos\\ArticleCommentary\\ArticleCommentary\\ArticleCommentary.csproj",
       "projectName": "ArticleCommentary",
-      "projectPath": "C:\\Users\\kaste\\source\\repos\\ArticleCommentary\\ArticleCommentary\\ArticleCommentary.csproj",
+      "projectPath": "C:\\Users\\kaste\\repos\\ArticleCommentary\\ArticleCommentary\\ArticleCommentary.csproj",
       "packagesPath": "C:\\Users\\kaste\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\kaste\\source\\repos\\ArticleCommentary\\ArticleCommentary\\obj\\",
+      "outputPath": "C:\\Users\\kaste\\repos\\ArticleCommentary\\ArticleCommentary\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\kaste\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -7324,7 +7324,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.401\\RuntimeIdentifierGraph.json"
       }
     }
   }

@@ -9,28 +9,28 @@ namespace ArticleCommentary
     public class ArticleNode:Article
         //Model-list of ArticleNode. Each has a tree of CommentNodes.
     {
-        private CommentNode rightComment;
-        private CommentNode leftComment;
+        private CommentNode _rightComment;
+        private CommentNode _leftComment;
         public CommentNode RightComment
         {
             get
             {
-                return rightComment;
+                return _rightComment;
             }
             private set
             {
-                rightComment = value;
+                _rightComment = value;
             }
         }
         public CommentNode LeftComment
         {
             get
             {
-                return leftComment;
+                return _leftComment;
             }
             private set
             {
-                leftComment = value;
+                _leftComment = value;
             }
         }
 

@@ -9,7 +9,7 @@ namespace ArticleCommentary
     public class ArticleCommentsTree
         //Datamodel object class. Uses singleton.
     {
-        private static ArticleCommentsTree instance;
+        private static ArticleCommentsTree _instance;
 
         private ArticleCommentsTree(ref List<ArticleNode> tree, ref List<User> users)
         {
@@ -19,26 +19,26 @@ namespace ArticleCommentary
 
         public static ArticleCommentsTree GetInstance()
         {
-            if (instance == null)
+            if (_instance == null)
             {
                 throw (new Exception());
             }
             else
             {
-                return instance;
+                return _instance;
             }
         }
 
         public static ArticleCommentsTree GetInstance(ref List<ArticleNode> tree, ref List<User> users)
         {
-            if (instance == null)
+            if (_instance == null)
             {
                 lock (syncRoot)
                 {
-                    instance = new ArticleCommentsTree(ref tree, ref users);
+                    _instance = new ArticleCommentsTree(ref tree, ref users);
                 }
             }
-            return instance;
+            return _instance;
         }
 
         private static readonly object syncRoot = new Object();
@@ -58,7 +58,7 @@ namespace ArticleCommentary
             //Return value: true-comment added to tree, false-not added.
         {
             if (comment == null) throw new ArgumentNullException(paramName: nameof(comment));
-            foreach (ArticleNode article in instance.ArticleList)
+            foreach (ArticleNode article in _instance.ArticleList)
             {
                 if (article.LeftComment == null)
                 {
