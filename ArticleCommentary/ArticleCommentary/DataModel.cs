@@ -56,6 +56,20 @@ namespace ArticleCommentary
         }
     }
 
+    public enum PropertyName
+    {
+        ComId = 0,
+        ComText = 1,
+        UserId = 2,
+        Article = 3,
+        Parent = 4,
+        UserId1 = 5,
+        Name = 6,
+        ArtId = 7,
+        Title = 8,
+        ArtText = 9
+    }
+
     public class CommentNode : Comment
         //"Node" of comments. Binary tree element.
     {
@@ -131,14 +145,9 @@ namespace ArticleCommentary
             return DerivedComments;
         }
 
-        public void LoadFromDBToModel(string ConnectionString)
+        public void LoadToModel(ref List<CommentNode> lst)
         {
-            if (ConnectionString is null)
-            {
-                throw new ArgumentNullException(nameof(ConnectionString));
-            }
-            var Interactor = new DBInteraction(ConnectionString);
-            List<Comment> tmp = Interactor.FindCommentsByParentId(Id);
+            List<CommentNode> tmp=lst.Where(x => (x.Parent == Id) && (x.Article == Article)).ToList();
             int count = tmp.Count;
             if (count == 0)
             {
@@ -146,16 +155,16 @@ namespace ArticleCommentary
             }
             if (count == 1)
             {
-                DerivedLeftCommentNode = new CommentNode(tmp[0]);
+                DerivedLeftCommentNode = tmp[0];
                 DerivedRightCommentNode = null;
-                DerivedLeftCommentNode.LoadFromDBToModel(ConnectionString);
+                DerivedLeftCommentNode.LoadToModel(ref lst);
             }
             if (count == 2)
             {
-                DerivedLeftCommentNode = new CommentNode(tmp[0]);
-                DerivedRightCommentNode = new CommentNode(tmp[1]);
-                DerivedLeftCommentNode.LoadFromDBToModel(ConnectionString);
-                DerivedRightCommentNode.LoadFromDBToModel(ConnectionString);
+                DerivedLeftCommentNode = tmp[0];
+                DerivedRightCommentNode = tmp[1];
+                DerivedLeftCommentNode.LoadToModel(ref lst);
+                DerivedRightCommentNode.LoadToModel(ref lst);
             }
             if (count > 2)
             {

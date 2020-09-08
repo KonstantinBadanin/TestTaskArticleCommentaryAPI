@@ -19,7 +19,7 @@ namespace ArticleCommentary.Controllers
         {
             List<string> initialData = new List<string>();
             var data = ArticleCommentsTree.GetInstance();
-            lock (data.Locker)
+            lock (ArticleCommentsTree.Locker)
             {
                 foreach (ArticleNode article in data.ArticleList)
                 {
@@ -67,7 +67,7 @@ namespace ArticleCommentary.Controllers
             var comment = new Comment(arg);
             var Node = new CommentNode(comment);
             var data = ArticleCommentsTree.GetInstance();
-            lock (data.Locker)
+            lock (ArticleCommentsTree.Locker)
             {
                 try
                 {
@@ -80,12 +80,7 @@ namespace ArticleCommentary.Controllers
                 if (ArticleCommentsTree.AddByParentId(ref Node) == true)
                 {
                         //Success addition handling.
-                    string connectionString =
-                        @"Persist Security Info=False;" +
-                        @" Data Source=(localDB)\mssqllocaldb;" +
-                        @" AttachDBFilename='C:\Users\kaste\source\repos\ArticleCommentary\ArticleCommentary\App_Data\CommentaryBase.mdf';" +
-                        @" Integrated Security =true";
-                    DBInteraction Interactor = new DBInteraction(connectionString);
+                    DBInteraction Interactor = new DBInteraction();
                     try
                     {
                         Interactor.AddNewUserAndHisComment(arg.UserName, comment);

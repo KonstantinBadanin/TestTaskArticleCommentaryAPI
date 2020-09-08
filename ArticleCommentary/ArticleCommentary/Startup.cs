@@ -11,69 +11,101 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Data.SqlClient;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Dynamic;
 
 namespace ArticleCommentary
 {
     public class Startup
     {
-        private readonly string _connectionString = 
-            @"Persist Security Info=False;" + 
-            @" Data Source=(localDB)\mssqllocaldb;" + 
-            @" AttachDBFilename='C:\Users\kaste\source\repos\ArticleCommentary\ArticleCommentary\App_Data\CommentaryBase.mdf';" +
-            @" Integrated Security=true";
 
-        public List<ArticleNode> InitArticlesOnStartup()
+        public Tuple<List<ArticleNode>, List<User>> InitOnStartup()
             //Reads database on startup and creates datamodel.
             //This needs to be reworked.
         {
-            DBInteraction Interactor = new DBInteraction(_connectionString);
             List<ArticleNode> ArticleList = new List<ArticleNode>();
-            foreach(ArticleNode item in Interactor.GetArticles())
-                //Filling list with articles.
+            List<CommentNode> CommentList = new List<CommentNode>();
+            List<User> UserList = new List<User>();
+            DBInteraction Interactor = new DBInteraction();
+            foreach (Comment comment in Interactor.GetAll())
             {
-                ArticleList.Add(new ArticleNode(item));
+                
             }
-            if (ArticleList.Count == 0)
+            foreach (ArticleNode art in ArticleList.Distinct())
             {
-                return ArticleList;
-            }
-            foreach (ArticleNode item in ArticleList)
-                //Recursively filling comments trees. Max two per level.
-            {
-                List<Comment> commentsWNoParent = Interactor.FindCommentsByArticleIdWNoParent(item.Id);
-                int k = commentsWNoParent.Count;
+                    //Recursively filling comments trees. Max two per level.
+                List<CommentNode> lst = CommentList.Distinct().Where(x => (x.Parent == null) && (x.Article == art.Id)).ToList();
+                int k = lst.Count;
                 if (k == 0)
                 { }
                 if (k == 1)
                 {
-                    var tmp = new CommentNode(commentsWNoParent[0]);
-                    item.SetLeftComment(ref tmp);
-                    item.LeftComment.LoadFromDBToModel(_connectionString);
+                    CommentNode tmp = lst[0];
+                    art.SetLeftComment(ref tmp);
+                    art.LeftComment.LoadToModel(ref lst);
                 }
                 if (k == 2)
                 {
-                    var tmp1 = new CommentNode(commentsWNoParent[0]);
-                    var tmp2 = new CommentNode(commentsWNoParent[1]);
-                    item.SetLeftComment(ref tmp1);
-                    item.SetRightComment(ref tmp2);
-                    item.LeftComment.LoadFromDBToModel(_connectionString);
-                    item.RightComment.LoadFromDBToModel(_connectionString);
+                    CommentNode tmp1 = lst[0];
+                    CommentNode tmp2 = lst[1];
+                    art.SetLeftComment(ref tmp1);
+                    art.SetRightComment(ref tmp2);
+                    art.LeftComment.LoadToModel(ref lst);
+                    art.RightComment.LoadToModel(ref lst);
                 }
                 if (k > 2)
                 {
                     throw (new InvalidOperationException());
                 }
             }
-            return ArticleList;
+            return new Tuple<List<ArticleNode>, List<User>>(ArticleList, UserList.Distinct().ToList());
+            //List<ArticleNode> ArticleList = new List<ArticleNode>();
+            //foreach(ArticleNode item in Interactor.GetArticles())
+            //    //Filling list with articles.
+            //{
+            //    ArticleList.Add(new ArticleNode(item));
+            //}
+            //if (ArticleList.Count == 0)
+            //{
+            //    return ArticleList;
+            //}
+            //foreach (ArticleNode item in ArticleList)
+            //    //Recursively filling comments trees. Max two per level.
+            //{
+            //    List<Comment> commentsWNoParent = Interactor.FindCommentsByArticleIdWNoParent(item.Id);
+            //    int k = commentsWNoParent.Count;
+            //    if (k == 0)
+            //    { }
+            //    if (k == 1)
+            //    {
+            //        var tmp = new CommentNode(commentsWNoParent[0]);
+            //        item.SetLeftComment(ref tmp);
+            //        item.LeftComment.LoadFromDBToModel(_connectionString);
+            //    }
+            //    if (k == 2)
+            //    {
+            //        var tmp1 = new CommentNode(commentsWNoParent[0]);
+            //        var tmp2 = new CommentNode(commentsWNoParent[1]);
+            //        item.SetLeftComment(ref tmp1);
+            //        item.SetRightComment(ref tmp2);
+            //        item.LeftComment.LoadFromDBToModel(_connectionString);
+            //        item.RightComment.LoadFromDBToModel(_connectionString);
+            //    }
+            //    if (k > 2)
+            //    {
+            //        throw (new InvalidOperationException());
+            //    }
+            //}
+            //return ArticleList;
         }
 
         public Startup(IConfiguration configuration)
             //DataModel initialization and getting singleton instance.
         {
             Configuration = configuration;
-            List<ArticleNode> articles = InitArticlesOnStartup();
-            DBInteraction Interactor = new DBInteraction(_connectionString);
-            List<User> users = Interactor.GetUsers();
+            Tuple<List<ArticleNode>,List<User>> initialData = InitOnStartup();
+            List<ArticleNode> articles = initialData.Item1;
+            List<User> users = initialData.Item2;
             ArticleCommentsTree.GetInstance(ref articles,ref users);
         }
 
@@ -83,7 +115,7 @@ namespace ArticleCommentary
         public void ConfigureServices(IServiceCollection services)
         {
                 //Adding database service.
-            services.AddTransient(provider => new DBInteraction(_connectionString));
+            services.AddTransient(provider => new DBInteraction());
                 //Enabling CORS.
             services.AddCors(options =>
             {

@@ -43,7 +43,7 @@ namespace ArticleCommentary
 
         private static readonly object syncRoot = new Object();
         private static readonly object locker = new Object();
-        public object Locker
+        public static object Locker
         {
             get
             {
