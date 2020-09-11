@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 //Copyright Konstantin Badanin.
 
-namespace DataSinglton
+namespace DataSingleton
 {
     public class DataSingleton
         //Datamodel object class. Uses singleton.

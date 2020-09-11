@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 //copyright Konstantin Badanin
 
-namespace DataSinglton.Controllers
+namespace DataSingleton.Controllers
 {
     [Route("[controller]")]
     [ApiController]

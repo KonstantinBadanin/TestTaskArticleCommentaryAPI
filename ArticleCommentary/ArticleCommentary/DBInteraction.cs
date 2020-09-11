@@ -10,7 +10,7 @@ using Dapper;
 using Microsoft.AspNetCore.Identity;
 //Copyright Konstantin Badanin.
 
-namespace DataSinglton
+namespace DataSingleton
 {
     public class Request
         //Class for transporting data by post request.
@@ -81,9 +81,11 @@ namespace DataSinglton
             {
                 var result = db.QueryMultiple("GetAll", commandType: CommandType.StoredProcedure);
                 var com = result.Read<Comment>().ToList();
-                usr = result.Read<User>().ToList();
-                art = result.Read<Article>().ToList();
+                var tmp1 = result.Read<User>().ToList();
+                var tmp2 = result.Read<Article>().ToList();
                 res = BuildTree(com).ToList();
+                usr = BuildList(tmp1, com).ToList();
+                art = BuildList(tmp2, com).ToList();
             }
             return new Tuple<List<Comment>, List<User>, List<Article>>(res, usr, art);
         }
@@ -92,6 +94,19 @@ namespace DataSinglton
         {
             items.ForEach(i => i.Comments = items.Where(ch => ch.ParentId == i.Id).ToList());
             return items.Where(i => i.ParentId == null).ToList();
+        }
+
+        private static IEnumerable<User> BuildList(List<User> arg, List<Comment> items)
+        {
+            arg.ForEach(i => i.Comments = items.Where(x => x.UserId == i.Id).ToList());
+            return arg;
+        }
+
+        private static IEnumerable<Article> BuildList(List<Article> arg, List<Comment> items)
+        {
+            arg.ForEach(i => i.Comments = 
+            items.Where(x => x.Article == i.Id).ToList());
+            return arg;
         }
 
         public List<User> GetUsers()

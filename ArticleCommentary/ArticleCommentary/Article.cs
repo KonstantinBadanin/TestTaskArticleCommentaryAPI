@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DataSinglton
+namespace DataSingleton
 {
     public class Article
         //Article mapping class.
@@ -51,13 +51,12 @@ namespace DataSinglton
             }
             else
             {
-                foreach (var item in Comments)
+                foreach (var item in Comments.Where(x => x.ParentId == null))
                 {
                     tmp = tmp.Concat(item.ToStringCustom(limit--)).ToList();
                 }
                 return tmp;
             }
-
         }
     }
 

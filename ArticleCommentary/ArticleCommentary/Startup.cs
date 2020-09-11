@@ -14,7 +14,7 @@ using System.Data.SqlClient;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Dynamic;
 
-namespace DataSinglton
+namespace DataSingleton
 {
     public class Startup
     {

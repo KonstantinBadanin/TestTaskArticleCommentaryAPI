@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Globalization;
-using DataSinglton.Controllers;
+using DataSingleton.Controllers;
 
-namespace DataSinglton
+namespace DataSingleton
 {
     public class Comment
     //Class for comments mapping.
@@ -69,8 +69,9 @@ namespace DataSinglton
 
         public List<string> ToStringCustom(Recursion limit)
         {
+            var data = DataSingleton.GetInstance();
             List<string> tmp = new List<string>();
-            tmp.Add("Comment " + Id + " " + ComText);
+            tmp.Add("Comment " + data.Users.Find(x => x.Id == UserId).ToString() + " " + Id + " " + ComText);
             if ((Comments.Count == 0) || (limit == 0))
             {
                 return tmp;
@@ -79,11 +80,10 @@ namespace DataSinglton
             {
                 foreach (var item in Comments)
                 {
-                    tmp=tmp.Concat(item.ToStringCustom(limit--)).ToList();
+                    tmp = tmp.Concat(item.ToStringCustom(limit--)).ToList();
                 }
                 return tmp;
             }
-            
         }
     }
 }

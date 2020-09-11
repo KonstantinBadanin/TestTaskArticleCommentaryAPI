@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DataSinglton
+namespace DataSingleton
 {
     public class User
         //User mapping class.
@@ -20,6 +20,11 @@ namespace DataSinglton
                 throw new ArgumentException("Argument can't be null or empty", paramName: nameof(name));
             Comments = lst ?? throw new ArgumentException("Argument can't be null: ", paramName: nameof(lst));
             Id = id; Name = name;
+        }
+
+        public override string ToString()
+        {
+            return Id + " " + Name;
         }
 
         public User(Request arg)
