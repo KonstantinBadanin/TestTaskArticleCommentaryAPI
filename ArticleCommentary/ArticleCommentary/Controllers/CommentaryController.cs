@@ -24,35 +24,8 @@ namespace DataSingleton.Controllers
             {
                 foreach (Article article in data.Articles)
                 {
-                    initialData=initialData.Concat(article.ToStringCustom(Recursion.Limit)).ToList();
-                    //foreach (Comment comment in article.Comments)
-                    //{
-                    //    initialData=initialData.Concat(comment.ToStringCustom(Recursion.Limit)).ToList();
-                    //}
-                    //if (article.Left != null)
-                    //{
-                    //    int IdToFind = article.Left.Comment.UserId;
-                    //    initialData.Add(data.Users.Find(x => x.Id == IdToFind).Name + " " +
-                    //        article.Left.ToString());
-                    //    foreach (CommentNode comment in article.Left.GetAllDerivedCommentsInDeepOrder())
-                    //    {
-                    //        IdToFind = comment.Comment.UserId;
-                    //        initialData.Add(data.Users.Find(x => x.Id == IdToFind).Name + " " +
-                    //            comment.ToString());
-                    //    }
-                    //}
-                    //if (article.Right != null)
-                    //{
-                    //    int IdToFind = article.Right.Comment.UserId;
-                    //    initialData.Add(data.Users.Find(x => x.Id == IdToFind).Name + " " +
-                    //        article.Right.ToString());
-                    //    foreach (CommentNode comment in article.Right.GetAllDerivedCommentsInDeepOrder())
-                    //    {
-                    //        IdToFind = comment.Comment.UserId;
-                    //        initialData.Add(data.Users.Find(x => x.Id == IdToFind).Name + " " +
-                    //            comment.ToString());
-                    //    }
-                    //}
+                    initialData = 
+                        initialData.Concat(article.ToStringCustom(Recursion.Limit)).ToList();
                 }
                 return initialData.ToArray();
             }

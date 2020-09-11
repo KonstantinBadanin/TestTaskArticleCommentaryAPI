@@ -71,7 +71,8 @@ namespace DataSingleton
         {
             var data = DataSingleton.GetInstance();
             List<string> tmp = new List<string>();
-            tmp.Add("Comment " + data.Users.Find(x => x.Id == UserId).ToString() + " " + Id + " " + ComText);
+            tmp.Add("Comment " + data.Users.Find(x => x.Id == UserId).ToString() + 
+                " " + Id + " " + ComText);
             if ((Comments.Count == 0) || (limit == 0))
             {
                 return tmp;

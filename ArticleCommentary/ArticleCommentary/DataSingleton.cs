@@ -52,43 +52,6 @@ namespace DataSingleton
 
         public List<Article> Articles { get; private set; }
 
-        //public static bool AddCommentByParentId(Comment comment)
-        ////Return value: true-comment added to tree, false-not added.
-        //{
-        //    if (comment == null)
-        //        throw new ArgumentException("Argument can't be null: ", paramName: nameof(comment));
-        //    if (user == null)
-        //        throw new ArgumentException("Argument can't be null: ", paramName: nameof(user));
-        //    foreach (Article article in _instance.Articles)
-        //    {
-        //        if (article.Left == null)
-        //        {
-        //            if ((ComNode.Comment.ParentId == null) && ComNode.Comment.Article == article.Article.Id)
-        //            {
-        //                article.SetLeftComment(ref ComNode);
-        //                return true;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            return article.Left.RecInsertByParentId(ref ComNode);
-        //        }
-        //        if (article.Right == null)
-        //        {
-        //            if ((ComNode.Comment.ParentId == null) && ComNode.Comment.Article == article.Article.Id)
-        //            {
-        //                article.SetRightComment(ref ComNode);
-        //                return true;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            return article.Right.RecInsertByParentId(ref ComNode);
-        //        }
-        //    }
-        //    return false;
-        //}
-
         public static bool DeleteCommentById(int comId)
         {
             throw new NotImplementedException();
