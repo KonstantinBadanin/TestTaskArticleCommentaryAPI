@@ -4,9 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 //copyright Konstantin Badanin
 
-namespace ArticleCommentary.Controllers
+namespace DataSinglton.Controllers
 {
     [Route("[controller]")]
     [ApiController]
@@ -15,39 +16,43 @@ namespace ArticleCommentary.Controllers
 
         [HttpGet]
         public string[] Get()
-            //Get method. Done for sending initial data to client.
+        //Get method. Done for sending initial data to client.
         {
             List<string> initialData = new List<string>();
-            var data = ArticleCommentsTree.GetInstance();
-            lock (ArticleCommentsTree.Locker)
+            var data = DataSingleton.GetInstance();
+            lock (DataSingleton.Locker)
             {
-                foreach (ArticleNode article in data.ArticleList)
+                foreach (Article article in data.Articles)
                 {
-                    initialData.Add(article.ToString());
-                    if (article.LeftComment != null)
-                    {
-                        int IdToFind = article.LeftComment.UserId;
-                        initialData.Add(data.Users.Find(x => x.Id == IdToFind).Name + " " + 
-                            article.LeftComment.ToString());
-                        foreach (CommentNode comment in article.LeftComment.GetAllDerivedComments())
-                        {
-                            IdToFind = comment.UserId;
-                            initialData.Add(data.Users.Find(x => x.Id == IdToFind).Name + " " + 
-                                comment.ToString());
-                        }
-                    }
-                    if (article.RightComment != null)
-                    {
-                        int IdToFind = article.RightComment.UserId;
-                        initialData.Add(data.Users.Find(x => x.Id == IdToFind).Name + " " + 
-                            article.RightComment.ToString());
-                        foreach (CommentNode comment in article.RightComment.GetAllDerivedComments())
-                        {
-                            IdToFind = comment.UserId;
-                            initialData.Add(data.Users.Find(x => x.Id == IdToFind).Name + " " + 
-                                comment.ToString());
-                        }
-                    }
+                    initialData=initialData.Concat(article.ToStringCustom(Recursion.Limit)).ToList();
+                    //foreach (Comment comment in article.Comments)
+                    //{
+                    //    initialData=initialData.Concat(comment.ToStringCustom(Recursion.Limit)).ToList();
+                    //}
+                    //if (article.Left != null)
+                    //{
+                    //    int IdToFind = article.Left.Comment.UserId;
+                    //    initialData.Add(data.Users.Find(x => x.Id == IdToFind).Name + " " +
+                    //        article.Left.ToString());
+                    //    foreach (CommentNode comment in article.Left.GetAllDerivedCommentsInDeepOrder())
+                    //    {
+                    //        IdToFind = comment.Comment.UserId;
+                    //        initialData.Add(data.Users.Find(x => x.Id == IdToFind).Name + " " +
+                    //            comment.ToString());
+                    //    }
+                    //}
+                    //if (article.Right != null)
+                    //{
+                    //    int IdToFind = article.Right.Comment.UserId;
+                    //    initialData.Add(data.Users.Find(x => x.Id == IdToFind).Name + " " +
+                    //        article.Right.ToString());
+                    //    foreach (CommentNode comment in article.Right.GetAllDerivedCommentsInDeepOrder())
+                    //    {
+                    //        IdToFind = comment.Comment.UserId;
+                    //        initialData.Add(data.Users.Find(x => x.Id == IdToFind).Name + " " +
+                    //            comment.ToString());
+                    //    }
+                    //}
                 }
                 return initialData.ToArray();
             }
@@ -61,48 +66,47 @@ namespace ArticleCommentary.Controllers
 
         [HttpPost]
         public void Post(Request arg)
-            //Recieves forms from client, writes data to datamodel and database.
+        //Recieves forms from client, writes data to datamodel and database.
         {
-            if (arg == null) throw new ArgumentNullException(paramName: nameof(arg));
+            if (arg == null)
+                throw new ArgumentNullException(paramName: nameof(arg));
             var comment = new Comment(arg);
-            var Node = new CommentNode(comment);
-            var data = ArticleCommentsTree.GetInstance();
-            lock (ArticleCommentsTree.Locker)
+            var user = new User(arg);
+            var data = DataSingleton.GetInstance();
+            lock (DataSingleton.Locker)
             {
                 try
                 {
-                    data.Users.Add(new User(comment.UserId, arg.UserName));
+                    data.Users.Add(user);
                 }
                 catch (Exception)
                 {
                     throw;
                 }
-                if (ArticleCommentsTree.AddByParentId(ref Node) == true)
+                try
                 {
-                        //Success addition handling.
-                    DBInteraction Interactor = new DBInteraction();
-                    try
+                    if (comment.ParentId == null)
                     {
-                        Interactor.AddNewUserAndHisComment(arg.UserName, comment);
+                        data.Comments.Add(comment);
                     }
-                    catch (Exception)
+                    else
                     {
-                            //Database failed addition handling.
-                        data.Users.RemoveAll(x => x.Id == comment.UserId);
-                        if (ArticleCommentsTree.DeleteCommentById(comment.Id) == true)
-                        {
-                            return;
-                        }
-                        else
-                        {
-                            throw (new Exception());
-                        }
-                    };
+                        data.Comments.Find(x => x.Article == comment.Article)
+                            .AddCommentRecursive(comment,Recursion.Limit);
+                    }
                 }
-                else
+                catch (Exception)
                 {
-                        //Failed addition handling.
-                    throw (new Exception());
+                    data.Users.RemoveAll(x => x.Id == user.Id);
+                }
+                DBInteraction Interactor = new DBInteraction();
+                try
+                {
+                    Interactor.AddNewUserAndHisComment(user.Name, comment);
+                }
+                catch
+                {
+
                 }
             }
         }

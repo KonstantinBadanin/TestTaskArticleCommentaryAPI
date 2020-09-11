@@ -4,204 +4,145 @@ using System.Linq;
 using System.Threading.Tasks;
     //Copyright Konstantin Badanin.
 
-namespace ArticleCommentary
+namespace DataSinglton
 {
-    public class ArticleNode:Article
-        //Model-list of ArticleNode. Each has a tree of CommentNodes.
-    {
-        private CommentNode _rightComment;
-        private CommentNode _leftComment;
-        public CommentNode RightComment
-        {
-            get
-            {
-                return _rightComment;
-            }
-            private set
-            {
-                _rightComment = value;
-            }
-        }
-        public CommentNode LeftComment
-        {
-            get
-            {
-                return _leftComment;
-            }
-            private set
-            {
-                _leftComment = value;
-            }
-        }
+    //public class Node
+    //{
+    //    public CommentNode Right { get; protected set; }
+    //    public CommentNode Left { get; protected set; }
+    //    public void SetRightComment(ref CommentNode comment)
+    //    {
+    //        Right = comment;
+    //    }
 
-        public void SetRightComment(ref CommentNode comment)
-        {
-            RightComment = comment;
-        }
+    //    public void SetLeftComment(ref CommentNode comment)
+    //    {
+    //        Left = comment;
+    //    }
 
-        public void SetLeftComment(ref CommentNode comment)
-        {
-            LeftComment = comment;
-        }
+    //    //public Node(Node arg)
+    //    //{
+    //    //    if (arg == null)
+    //    //        throw new ArgumentNullException(paramName: nameof(arg));
+    //    //    Right = arg.Right;
+    //    //    Left = arg.Left;
+    //    //}
 
-        public ArticleNode(int id, string title, string text) : base(id, title, text)
-        {
-            RightComment = LeftComment = null;
-        }
+    //    public Node()
+    //    {
+    //        Right = Left = null;
+    //    }
 
-        public ArticleNode(Article arg) : base(arg)
-        {
-            if (arg == null) throw (new NullReferenceException());
-            RightComment = LeftComment = null;
-        }
-    }
+    //    public List<CommentNode> GetAllDerivedCommentsInDeepOrder()
+    //    //Returns list of derived comments.
+    //    {
+    //        List<CommentNode> DerivedComments = new List<CommentNode>();
+    //        if (Left != null)
+    //        {
+    //            DerivedComments.Add(Left);
+    //            foreach (CommentNode comment in Left.GetAllDerivedCommentsInDeepOrder())
+    //            {
+    //                DerivedComments.Add(comment);
+    //            }
+    //        }
+    //        if (Right != null)
+    //        {
+    //            DerivedComments.Add(Right);
+    //            foreach (CommentNode comment in Right.GetAllDerivedCommentsInDeepOrder())
+    //            {
+    //                DerivedComments.Add(comment);
+    //            }
+    //        }
+    //        return DerivedComments;
+    //    }
+    //}
 
-    public enum PropertyName
-    {
-        ComId = 0,
-        ComText = 1,
-        UserId = 2,
-        Article = 3,
-        Parent = 4,
-        UserId1 = 5,
-        Name = 6,
-        ArtId = 7,
-        Title = 8,
-        ArtText = 9
-    }
+    //public class ArticleNode:Node
+    //    //Model-list of ArticleNode. Each has a tree of CommentNodes.
+    //{
+    //    public Article Article { get; private set; }
 
-    public class CommentNode : Comment
-        //"Node" of comments. Binary tree element.
-    {
-        private CommentNode derivedLeftCommentNode;
-        private CommentNode derivedRightCommentNode;
+    //    //public ArticleNode(int id, string title, string text)
+    //    //{
+    //    //    RightComment = LeftComment = null;
+    //    //}
 
-        public CommentNode DerivedLeftCommentNode
-        {
-            get
-            {
-                return derivedLeftCommentNode;
-            }
-            private set
-            {
-                derivedLeftCommentNode = value;
-            }
-        }
+    //    public ArticleNode(Article arg) : base()
+    //    {
+    //        Article = arg ?? throw new ArgumentNullException(paramName: nameof(arg));
+    //    }
+    //}
 
-        public CommentNode DerivedRightCommentNode
-        {
-            get
-            {
-                return derivedRightCommentNode;
-            }
-            private set
-            {
-                derivedRightCommentNode = value;
-            }
-        }
+    //public class CommentNode:Node
+    //    //"Node" of comments. Binary tree element.
+    //{
+    //    public Comment Comment { get; private set; }
+    //    //public CommentNode(int id, string text, User user, Article article, Comment parent) : base(id, text, user, article, parent)
+    //    //{
+    //    //    DerivedRightCommentNode = DerivedLeftCommentNode = null;
+    //    //}
 
-        public void SetDerivedLeftCommentNode(ref CommentNode comment)
-        {
-            DerivedLeftCommentNode = comment;
-        }
+    //    public CommentNode(Comment arg):base()
+    //    {
+    //        Comment = arg ?? throw new ArgumentNullException(paramName:nameof(arg));
+    //    }
 
-        public void SetDerivedRightCommentNode(ref CommentNode comment)
-        {
-            DerivedRightCommentNode = comment;
-        }
+    //    public void LoadToModel(ref List<CommentNode> lst)
+    //    {
+    //        List<CommentNode> tmp=lst.Where(x => (x.Comment.ParentId == Comment.Id) && (x.Comment.Article == Comment.Article)).ToList();
+    //        int count = tmp.Count;
+    //        if (count == 0)
+    //        {
+    //            return;
+    //        }
+    //        if (count == 1)
+    //        {
+    //            Left = tmp[0];
+    //            Left.LoadToModel(ref lst);
+    //            Right = null;
+    //        }
+    //        if (count == 2)
+    //        {
+    //            Left = tmp[0];
+    //            Left.LoadToModel(ref lst);
+    //            Right = tmp[1];
+    //            Right.LoadToModel(ref lst);
+    //        }
+    //        if (count > 2)
+    //        {
+    //            throw (new InvalidOperationException());
+    //        }
+    //    }
 
-        public CommentNode(int id, string text, int user, int article, int? parent) : base(id, text, user, article, parent)
-        {
-            DerivedRightCommentNode = DerivedLeftCommentNode = null;
-        }
-
-        public CommentNode(Comment arg) : base(arg)
-        {
-            if (arg == null) throw (new NullReferenceException());
-            DerivedRightCommentNode = DerivedLeftCommentNode = null;
-        }
-
-        public List<CommentNode> GetAllDerivedComments()
-            //Returns list of derived comments.
-        {
-            List<CommentNode> DerivedComments = new List<CommentNode>();
-            if (this == null) return DerivedComments;
-            if (DerivedLeftCommentNode != null)
-            {
-                DerivedComments.Add(DerivedLeftCommentNode);
-                foreach (CommentNode comment in DerivedLeftCommentNode.GetAllDerivedComments())
-                {
-                    DerivedComments.Add(comment);
-                }
-            }
-            if (DerivedRightCommentNode != null)
-            {
-                DerivedComments.Add(DerivedRightCommentNode);
-                foreach (CommentNode comment in DerivedRightCommentNode.GetAllDerivedComments())
-                {
-                    DerivedComments.Add(comment);
-                }
-            }
-            return DerivedComments;
-        }
-
-        public void LoadToModel(ref List<CommentNode> lst)
-        {
-            List<CommentNode> tmp=lst.Where(x => (x.Parent == Id) && (x.Article == Article)).ToList();
-            int count = tmp.Count;
-            if (count == 0)
-            {
-                return;
-            }
-            if (count == 1)
-            {
-                DerivedLeftCommentNode = tmp[0];
-                DerivedRightCommentNode = null;
-                DerivedLeftCommentNode.LoadToModel(ref lst);
-            }
-            if (count == 2)
-            {
-                DerivedLeftCommentNode = tmp[0];
-                DerivedRightCommentNode = tmp[1];
-                DerivedLeftCommentNode.LoadToModel(ref lst);
-                DerivedRightCommentNode.LoadToModel(ref lst);
-            }
-            if (count > 2)
-            {
-                throw (new InvalidOperationException());
-            }
-        }
-
-        public bool RecInsertByParentId(ref CommentNode arg)
-            //Return value: True-element added, false-not added.
-        {
-            if (arg == null) throw new ArgumentNullException(paramName: nameof(arg));
-            if (this == null) return false;
-            if (DerivedLeftCommentNode == null)
-            {
-                if (arg.Parent == Id)
-                {
-                    SetDerivedLeftCommentNode(ref arg);
-                    return true;
-                }
-            }
-            else
-            {
-                if (DerivedLeftCommentNode.RecInsertByParentId(ref arg)) return true;
-            }
-            if (DerivedRightCommentNode == null)
-            {
-                if (arg.Parent == Id)
-                {
-                    SetDerivedRightCommentNode(ref arg);
-                    return true;
-                }
-            }
-            else
-            {
-                if (DerivedRightCommentNode.RecInsertByParentId(ref arg)) return true;
-            }
-            return false;
-        }
-    }
+    //    public bool RecInsertByParentId(ref CommentNode arg)
+    //    //Return value: True-element added, false-not added.
+    //    {
+    //        if (arg == null) throw new ArgumentNullException(paramName: nameof(arg));
+    //        if (Left == null)
+    //        {
+    //            if (arg.Comment.ParentId == Comment.Id)
+    //            {
+    //                SetLeftComment(ref arg);
+    //                return true;
+    //            }
+    //        }
+    //        else
+    //        {
+    //            if (Left.RecInsertByParentId(ref arg)) return true;
+    //        }
+    //        if (Right == null)
+    //        {
+    //            if (arg.Comment.ParentId == Comment.Id)
+    //            {
+    //                SetRightComment(ref arg);
+    //                return true;
+    //            }
+    //        }
+    //        else
+    //        {
+    //            if (Right.RecInsertByParentId(ref arg)) return true;
+    //        }
+    //        return false;
+    //    }
+    //}
 }

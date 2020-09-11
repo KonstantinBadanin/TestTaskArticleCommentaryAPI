@@ -5,22 +5,25 @@ using System.Threading.Tasks;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using Dapper;
-    //Copyright Konstantin Badanin.
+using Microsoft.AspNetCore.Identity;
+//Copyright Konstantin Badanin.
 
-namespace ArticleCommentary
+namespace DataSinglton
 {
     public class Request
         //Class for transporting data by post request.
     {
-        public string UserName { get; set; }
-        public string Id { get; set; }
-        public string ComText { get; set; }
-        public string UserId { get; set; }
-        public string Article { get; set; }
-        public string Parent { get; set; }
+        public string UserName { get; private set; }
+        public string Id { get; private set; }
+        public string ComText { get; private set; }
+        public string UserId { get; private set; }
+        public string Article { get; private set; }
+        public string Parent { get; private set; }
         public Request() { }
     }
+    
     public class DBInteraction 
         //Database interaction class.
     {
@@ -31,9 +34,21 @@ namespace ArticleCommentary
             @" Integrated Security=true";
         public DBInteraction() { }
 
+        public User GetUserById(int id)
+        {
+            User res;
+            using (IDbConnection db = new SqlConnection(_connectionString))
+            {
+                res = db.Query<User>("GetUserById", new { id },
+                commandType: CommandType.StoredProcedure).ToList().First();
+            }
+            return res;
+        }
+
         public void AddNewUserAndHisComment(string username, Comment arg)
         {
-            if (arg == null) throw new ArgumentNullException(paramName: nameof(arg));
+            if (arg == null)
+                throw new ArgumentNullException(paramName: nameof(arg));
             using IDbConnection db = new SqlConnection(_connectionString);
             db.Open();
             using IDbTransaction tran = db.BeginTransaction();
@@ -46,7 +61,7 @@ namespace ArticleCommentary
                     arg.ComText,
                     arg.Article,
                     arg.UserId,
-                    arg.Parent
+                    arg.ParentId
                 }, tran, commandType: CommandType.StoredProcedure);
                 tran.Commit();
             }
@@ -57,21 +72,26 @@ namespace ArticleCommentary
             }
         }
 
-        public List<Comment> GetAll()
+        public Tuple<List<Comment>, List<User>, List<Article>> GetAll()
         {
-            var result = new List<Comment>();
-            using(IDbConnection db=new SqlConnection(_connectionString))
+            var res = new List<Comment>();
+            var usr = new List<User>();
+            var art = new List<Article>();
+            using (IDbConnection db = new SqlConnection(_connectionString))
             {
-                result = db.Query<Comment,User,Article,Comment>("GetAll", map:(c,u,a)=>
-                {
-                    c.Article = a.Id;
-                    c.UserId = u.Id;
-                    return c;
-                },
-                splitOn:"Id,Id",
-                commandType: CommandType.StoredProcedure).Distinct().ToList();
+                var result = db.QueryMultiple("GetAll", commandType: CommandType.StoredProcedure);
+                var com = result.Read<Comment>().ToList();
+                usr = result.Read<User>().ToList();
+                art = result.Read<Article>().ToList();
+                res = BuildTree(com).ToList();
             }
-            return result;
+            return new Tuple<List<Comment>, List<User>, List<Article>>(res, usr, art);
+        }
+
+        private static IEnumerable<Comment> BuildTree(List<Comment> items)
+        {
+            items.ForEach(i => i.Comments = items.Where(ch => ch.ParentId == i.Id).ToList());
+            return items.Where(i => i.ParentId == null).ToList();
         }
 
         public List<User> GetUsers()
