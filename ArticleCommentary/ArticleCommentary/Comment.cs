@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Globalization;
-using DataSingleton.Controllers;
+using ArticleCommentary.Controllers;
 
-namespace DataSingleton
+namespace ArticleCommentary
 {
     public class Comment
     //Class for comments mapping.
@@ -26,13 +26,6 @@ namespace DataSingleton
             Comments = childs ?? throw new ArgumentException("Argument can't be null: ", paramName: nameof(childs));
             Id = id; ComText = text; UserId = userId; Article = articleId;
             ParentId = parId;
-        }
-
-        public Comment(Comment arg)
-        {
-            if (arg == null)
-                throw new ArgumentNullException(paramName: nameof(arg));
-            Id = arg.Id; ComText = arg.ComText; UserId = arg.UserId; Article = arg.Article; Comments = arg.Comments;
         }
 
         public Comment(Request arg)
@@ -79,7 +72,7 @@ namespace DataSingleton
             }
             else
             {
-                foreach (var item in Comments)
+                foreach (Comment item in Comments)
                 {
                     tmp = tmp.Concat(item.ToStringCustom(limit--)).ToList();
                 }

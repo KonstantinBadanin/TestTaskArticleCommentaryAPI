@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 //copyright Konstantin Badanin
 
-namespace DataSingleton.Controllers
+namespace ArticleCommentary.Controllers
 {
     [Route("[controller]")]
     [ApiController]
@@ -65,7 +65,7 @@ namespace DataSingleton.Controllers
                     else
                     {
                         data.Comments.Find(x => x.Article == comment.Article)
-                            .AddCommentRecursive(comment,Recursion.Limit);
+                            .AddCommentRecursive(comment, Recursion.Limit);
                     }
                 }
                 catch (Exception)

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 //Copyright Konstantin Badanin.
 
-namespace DataSingleton
+namespace ArticleCommentary
 {
     public class DataSingleton
         //Datamodel object class. Uses singleton.
@@ -51,10 +51,5 @@ namespace DataSingleton
         public List<Comment> Comments { get; private set; }
 
         public List<Article> Articles { get; private set; }
-
-        public static bool DeleteCommentById(int comId)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DataSingleton
+namespace ArticleCommentary
 {
     public class Article
         //Article mapping class.
@@ -26,16 +26,6 @@ namespace DataSingleton
             Id = id; Title = title; ArtText = text; Comments = lst;
         }
 
-        public Article(Article arg)
-        {
-            if (arg == null)
-                throw new NullReferenceException();
-            Id = arg.Id;
-            ArtText = arg.ArtText;
-            Title = arg.Title;
-            Comments = arg.Comments;
-        }
-
         public override string ToString()
         {
             return "Article " + Id + " " + Title + " " + ArtText;
@@ -51,7 +41,7 @@ namespace DataSingleton
             }
             else
             {
-                foreach (var item in Comments.Where(x => x.ParentId == null))
+                foreach (Comment item in Comments.Where(x => x.ParentId == null))
                 {
                     tmp = tmp.Concat(item.ToStringCustom(limit--)).ToList();
                 }

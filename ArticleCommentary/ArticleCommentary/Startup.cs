@@ -14,7 +14,7 @@ using System.Data.SqlClient;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Dynamic;
 
-namespace DataSingleton
+namespace ArticleCommentary
 {
     public class Startup
     {
@@ -30,7 +30,7 @@ namespace DataSingleton
         //Constructing singleton instance.
         {
             Configuration = configuration;
-            var tmp = InitOnStartup();
+            Tuple<List<Comment>, List<User>, List<Article>> tmp = InitOnStartup();
             DataSingleton.GetInstance(tmp.Item1, tmp.Item2, tmp.Item3);
         }
 

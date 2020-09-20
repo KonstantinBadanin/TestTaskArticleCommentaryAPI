@@ -8,9 +8,10 @@ using System.Data.SqlClient;
 using System.Globalization;
 using Dapper;
 using Microsoft.AspNetCore.Identity;
+using System.Text;
 //Copyright Konstantin Badanin.
 
-namespace DataSingleton
+namespace ArticleCommentary
 {
     public class Request
         //Class for transporting data by post request.
@@ -27,29 +28,28 @@ namespace DataSingleton
     public class DBInteraction 
         //Database interaction class.
     {
-        private readonly string _connectionString=
-            @"Persist Security Info=False;" +
-            @" Data Source=(localDB)\mssqllocaldb;" +
-            @" AttachDBFilename='C:\Users\kaste\repos\ArticleCommentary\ArticleCommentary\App_Data\CommentaryBase.mdf';" +
-            @" Integrated Security=true";
-        public DBInteraction() { }
-
-        public User GetUserById(int id)
+        public string DatabaseLocation { get; set; } = @"C:\Users\kaste\repos\ArticleCommentary\ArticleCommentary\App_Data\CommentaryBase.mdf";
+        private string ConnectionString
         {
-            User res;
-            using (IDbConnection db = new SqlConnection(_connectionString))
+            get
             {
-                res = db.Query<User>("GetUserById", new { id },
-                commandType: CommandType.StoredProcedure).ToList().First();
+                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder
+                {
+                    ["Data Source"] = @"(localDB)\mssqllocaldb",
+                    ["Persist Security Info"] = false,
+                    ["AttachDBFilename"] = DatabaseLocation,
+                    ["Integrated Security"] = true
+                };
+                return builder.ConnectionString;
             }
-            return res;
         }
+        public DBInteraction() { }
 
         public void AddNewUserAndHisComment(string username, Comment arg)
         {
             if (arg == null)
                 throw new ArgumentNullException(paramName: nameof(arg));
-            using IDbConnection db = new SqlConnection(_connectionString);
+            using IDbConnection db = new SqlConnection(ConnectionString);
             db.Open();
             using IDbTransaction tran = db.BeginTransaction();
             try
@@ -77,12 +77,12 @@ namespace DataSingleton
             var res = new List<Comment>();
             var usr = new List<User>();
             var art = new List<Article>();
-            using (IDbConnection db = new SqlConnection(_connectionString))
+            using (IDbConnection db = new SqlConnection(ConnectionString))
             {
                 var result = db.QueryMultiple("GetAll", commandType: CommandType.StoredProcedure);
-                var com = result.Read<Comment>().ToList();
-                var tmp1 = result.Read<User>().ToList();
-                var tmp2 = result.Read<Article>().ToList();
+                List<Comment> com = result.Read<Comment>().ToList();
+                List<User> tmp1 = result.Read<User>().ToList();
+                List<Article> tmp2 = result.Read<Article>().ToList();
                 res = BuildTree(com).ToList();
                 usr = BuildList(tmp1, com).ToList();
                 art = BuildList(tmp2, com).ToList();
@@ -107,59 +107,6 @@ namespace DataSingleton
             arg.ForEach(i => i.Comments = 
             items.Where(x => x.Article == i.Id).ToList());
             return arg;
-        }
-
-        public List<User> GetUsers()
-        {
-            List<User> users = new List<User>();
-            using (IDbConnection db = new SqlConnection(_connectionString))
-            {
-                users = db.Query<User>("GetUsers", commandType: CommandType.StoredProcedure).ToList();
-            }
-            return users;
-        }
-
-        public List<Article> GetArticles()
-        {
-            List<Article> articles = new List<Article>();
-            using (IDbConnection db = new SqlConnection(_connectionString))
-            {
-                articles = db.Query<Article>("GetArticles", commandType: CommandType.StoredProcedure).ToList();
-            }
-            return articles;
-        }
-
-        public List<Comment> FindCommentsByParentId(int parId)
-        {
-            List<Comment> comments = null;
-            using (IDbConnection db = new SqlConnection(_connectionString))
-            {
-                comments = db.Query<Comment>("FindCommentsByParentId", new { parId },
-                    commandType: CommandType.StoredProcedure).ToList();
-            }
-            return comments;
-        }
-
-        public List<Comment> FindCommentsByArticleIdWNoParent(int artId)
-        {
-            List<Comment> comment = null;
-            using (IDbConnection db = new SqlConnection(_connectionString))
-            {
-                comment = db.Query<Comment>("FindCommentsByArticleIdWNoParent", new { artId },
-                    commandType: CommandType.StoredProcedure).ToList();
-            }
-            return comment;
-        }
-
-        public List<Comment> FindCommentsByArticleId(int artId)
-        {
-            List<Comment> comment = null;
-            using (IDbConnection db = new SqlConnection(_connectionString))
-            {
-                comment = db.Query<Comment>("FindCommentsByArticleId", new { artId },
-                    commandType: CommandType.StoredProcedure).ToList();
-            }
-            return comment;
         }
     }
 }
